@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3effddd62d75af8459e5e1e8d8fdbaaa, type: 3}
+  m_Name: Configuration_2
+  m_EditorClassIdentifier: 
+  FieldData: "{\r\n\t\"game-events\":\r\n\t[\r\n\t\t{\r\n\t\t\t\"trackBuildMode\":\"empty_track\",\r\n\t\t\t\"trackLight\":\"none\",\r\n\t\t\t\"trackRail\":\"none\",\r\n\t\t\t\"transitionDistance\":\"100\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"trackBuildMode\":\"obstacle\",\r\n\t\t\t\"trackLight\":\"both\",\r\n\t\t\t\"trackRail\":\"both\",\r\n\t\t\t\"fog-layer-enable\":\"true\",\r\n\t\t\t\"fog-layer-density\":
+    10,\r\n\t\t\t\"fog-layer-alpha\": 0.25,\r\n\t\t\t\"fog-layer-color\": \"#404A2A\",\r\n\t\t\t\"transitionDistance\":\"10000\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"trackBuildMode\":\"tank\",\r\n\t\t\t\"trackRail\":\"none\",\r\n\t\t\t\"transitionDistance\":\"500\"\r\n\t\t}\r\n\t]\r\n}"

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3effddd62d75af8459e5e1e8d8fdbaaa, type: 3}
+  m_Name: Initialize_1
+  m_EditorClassIdentifier: 
+  FieldData: "{\r\n   \"spawn-content\":\r\n   {\r\n      \"buildDistance\":1000,\r\n     
+    \"enabled\":\"true\",\r\n      \"fog-enable\":\"true\",\r\n      \"fog-start\":0,\r\n     
+    \"fog-end\":500,\r\n      \"fog-color\":\"#404A2A\"\r\n   },\r\n   \"spawn-weather\":\r\n  
+    {\r\n      \"cloud-color\":\"#548ca8\",\r\n      \"cloud-scale\":350,\r\n     
+    \"cloud-alpha\":0.67\r\n   },\r\n   \"object-pooler\":\r\n    {\r\n      \"set-paths\":[\r\n       
+    {\"path\":\"/Common\"},\r\n        {\"path\":\"/Level1\"}\r\n      ]   \r\n   
+    },\r\n    \"mission-brief-message\":\r\n    {\r\n      \"1\":\"Cake Walk\",\r\n     
+    \"2\":\"Mind The Gap\"\r\n    }\r\n}"
