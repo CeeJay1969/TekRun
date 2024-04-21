@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1430565685385619197}
   - component: {fileID: 1045160322434541168}
   - component: {fileID: 6381279286669786193}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cockpit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116,7 +116,7 @@ GameObject:
   - component: {fileID: 5674137825062013947}
   - component: {fileID: 875084291918162337}
   - component: {fileID: 5402249446678957448}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: RPontoon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -202,7 +202,7 @@ GameObject:
   - component: {fileID: 1471209547198912429}
   - component: {fileID: -8316629323353929948}
   - component: {fileID: 5721545659390526605}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -372,7 +372,7 @@ GameObject:
   - component: {fileID: 87754378551669392}
   - component: {fileID: 4920144074236145828}
   - component: {fileID: 1386923924723465523}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Wings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -457,7 +457,7 @@ GameObject:
   - component: {fileID: 7077003088400584458}
   - component: {fileID: 2296014932784446171}
   - component: {fileID: 8466009084987605522}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Wings (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -542,7 +542,7 @@ GameObject:
   - component: {fileID: 1077991653970963987}
   - component: {fileID: 2292319161407515007}
   - component: {fileID: 8001985482817576546}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: LPontoon (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -623,7 +623,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8878424234685970727}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -656,7 +656,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9073682021162754432}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: GroundScan
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -689,7 +689,7 @@ GameObject:
   - component: {fileID: 414897264816503089}
   - component: {fileID: 1343064487164766278}
   - component: {fileID: 1595635521334806345}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: RPontoon (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -772,7 +772,7 @@ GameObject:
   - component: {fileID: 705844620963624761}
   - component: {fileID: 8285739150131732412}
   - component: {fileID: 3276005102079299104}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: LPontoon
   m_TagString: Untagged
   m_Icon: {fileID: 0}

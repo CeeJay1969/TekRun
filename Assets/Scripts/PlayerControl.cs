@@ -12,6 +12,13 @@ public class PlayerControl : MonoBehaviour
     bool playerIsEnabled;
     PlayerState playerState;
     public static Vector3 playerPosition;
+    
+    //Player invulnerability
+    bool playerInvulnerable;
+    float playerInvulnerableCount = 2.5f;
+    float playerInvulnerableCounter = 0;
+    List<MeshRenderer> playerMeshRenders = new List<MeshRenderer>();
+    List<BoxCollider> playerBoxColliders = new List<BoxCollider>();
 
     float engineCurrentPower = 30f;
     float engineDefaultPower = 70f;
@@ -33,7 +40,6 @@ public class PlayerControl : MonoBehaviour
     Vector3 playerVelocity;
     Camera gameCamera;
 
-    List<MeshRenderer> playerMeshRenders = new List<MeshRenderer>();
     LaunchPadController launchPadControl;
 
     //Player states
@@ -59,6 +65,7 @@ public class PlayerControl : MonoBehaviour
 
         instance = this;
         playerIsEnabled = false;
+        playerInvulnerable = false;
 
         //Get all mesh renderers
         GetComponentsInChildren<MeshRenderer>(true, playerMeshRenders);
@@ -85,8 +92,7 @@ public class PlayerControl : MonoBehaviour
                 //Set mode and enable the controlls
                 playerState = PlayerState.PLAYING;
                 playerIsEnabled = true;
-                foreach (MeshRenderer renderer in playerMeshRenders)
-                { renderer.enabled = playerIsEnabled; }
+                ShowMesh(playerIsEnabled);
 
                 //Send message to GameController that the manager that the player has launched
                 JObject readyMessage = new()
@@ -110,8 +116,7 @@ public class PlayerControl : MonoBehaviour
             playerExplosion.transform.position = transform.position;
 
             playerIsEnabled = false;
-            foreach (MeshRenderer renderer in playerMeshRenders)
-            { renderer.enabled = playerIsEnabled; }
+            ShowMesh(playerIsEnabled);
         }
 
         if (playerState == PlayerState.PLAYING)
@@ -212,13 +217,14 @@ public class PlayerControl : MonoBehaviour
 
         float levitatorLength = 5.5f;
         float levitatorTargetHeight = 5f;
-        int layerMask = 1 << 6;
+        int groundRayCastLayer = 1 << 6;
+        //int obstacleLayerBit = gameObject.layer;
 
         Vector3 levitatorOrigin = playerRb.transform.position;
 
         RaycastHit rayCastInfo;
 
-        if (Physics.Raycast(levitatorOrigin, Vector3.down, out rayCastInfo, levitatorLength, layerMask))
+        if (Physics.Raycast(levitatorOrigin, Vector3.down, out rayCastInfo, levitatorLength, groundRayCastLayer))
         {
             //Calculate the correcting vertical force
             float targetHeightDifference = levitatorTargetHeight - rayCastInfo.point.y + playerRb.transform.position.y;
@@ -356,9 +362,7 @@ public class PlayerControl : MonoBehaviour
             if (propertyName == "enabled")
             {
                 playerIsEnabled = (bool)propertyValue;
-                
-                foreach (MeshRenderer renderer in playerMeshRenders)
-                { renderer.enabled = playerIsEnabled; }
+                ShowMesh(playerIsEnabled);
 
                 //If enabled get the camera reference
                 if (playerIsEnabled)
@@ -396,15 +400,49 @@ public class PlayerControl : MonoBehaviour
             if (propertyName == "state")
             {
                 //If player is being reset, reenable the mesh renderer
-                if ((propertyValue.ToString() == "PLAYING") && (playerState == PlayerState.DESTROYED))
+                if ((propertyValue.ToString() == "PLAYING") && (playerState == PlayerState.DESTROYING))
                 {
                     playerIsEnabled = true;
-                    foreach (MeshRenderer renderer in playerMeshRenders)
-                    { renderer.enabled = playerIsEnabled; }
+                    playerInvulnerable = true;
+
+                    //Start invulnerability flash
+                    StartCoroutine(InvulnerabilityFlash());
                 }
 
                 Enum.TryParse<PlayerState>(propertyValue.ToString(), out playerState);
             }
         }
+    }
+
+    void ShowMesh(bool meshIsRendered)
+    {
+        foreach (MeshRenderer renderer in playerMeshRenders)
+        { renderer.enabled = meshIsRendered; }
+    }
+
+    IEnumerator InvulnerabilityFlash()
+    {
+        //Disable collision between player and obstacle layers
+        Physics.IgnoreLayerCollision(7, 8, true);
+        
+        while (playerInvulnerableCounter < playerInvulnerableCount)
+        {
+            //Toggle mesh visibility on and off
+            if (playerMeshRenders[0].isVisible)
+                ShowMesh(false);
+             else
+                ShowMesh(true);
+
+            playerInvulnerableCounter += 0.025f;
+            yield return new WaitForSeconds(0.025f);
+        }
+
+        ShowMesh(true);
+        playerInvulnerable = false;
+        playerInvulnerableCounter = 0;
+
+        //Re-enable collision between player and obstacle layers
+        Physics.IgnoreLayerCollision(7, 8, false);
+
     }
 }

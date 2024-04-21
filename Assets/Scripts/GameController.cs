@@ -358,7 +358,7 @@ public class GameController : MonoBehaviour
                     //Get the new position for the player
                     Vector3 playerResetPosition = PlayerControl.playerPosition;
 
-                    playerResetPosition = new Vector3(0f, 10f, playerResetPosition.z - 20f);
+                    playerResetPosition = new Vector3(0f, 10f, playerResetPosition.z - 50f);
 
                     //Reset hull, player position and run state
                     JObject playerControllerMessages = new()
