@@ -160,6 +160,14 @@ public class GameController : MonoBehaviour
         //Iterate through each controller message
         foreach (var JSONObject in JSONObjects)
         {
+
+            //Pass messages on to other controllers
+            if (JSONObject.Value.ToString() == "PASS-THROUGH")
+            {
+                Debug.Log("Pass through");
+
+            }
+
             //Initialization of controllers
             if (gamePhase == GamePhase.INIT_START)
             {
@@ -332,7 +340,7 @@ public class GameController : MonoBehaviour
                 gamePhase = GamePhase.GAME_LOOP;
 
                 //Put camera back a bit
-                JObject cameraOffset = Utility.Vector3toJSON(new Vector3(0f, 7f, -10f));
+                JObject cameraOffset = Utility.Vector3toJSON(new Vector3(0f, 10f, -15f));
                 controllerMessage = new();
                 JObject controllerEnableMessage = new()
                 {
@@ -348,21 +356,23 @@ public class GameController : MonoBehaviour
                 if ((JSONObject.Key == "player-controller") && (JSONObject.Value.ToString() == "destroyed"))
                 {
                     //Get the new position for the player
-                    Vector3 playerResetPosition = PlayerControl.instance.transform.position;
-                    playerResetPosition = new Vector3(0f, 10f, playerResetPosition.z - 2f);
+                    Vector3 playerResetPosition = PlayerControl.playerPosition;
+
+                    playerResetPosition = new Vector3(0f, 10f, playerResetPosition.z - 20f);
 
                     //Reset hull, player position and run state
                     JObject playerControllerMessages = new()
                     {
                         { "hull-value", 100 },
                         { "position", Utility.Vector3toJSON(playerResetPosition) },
-                        { "state", PlayerControl.PlayerState.PLAYING.ToString() }
+                        { "state", PlayerControl.PlayerState.PLAYING.ToString() },
+                        { "enabled", "true"}
                     };
 
                     JObject playerControllerMessage = new()
-                    { {"player-controller", playerControllerMessages}
+                    { 
+                        {"player-controller", playerControllerMessages}
                     };
-
                     OnGameControllerMessage(this, new GameControllerMessage { JSONMessage = playerControllerMessage.ToString() });
                 }
             }

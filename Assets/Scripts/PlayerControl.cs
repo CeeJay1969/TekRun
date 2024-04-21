@@ -1,8 +1,7 @@
 using Newtonsoft.Json.Linq;
 using System;
-using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor.Rendering;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerControl : MonoBehaviour
@@ -12,6 +11,7 @@ public class PlayerControl : MonoBehaviour
     public static PlayerControl instance;
     bool playerIsEnabled;
     PlayerState playerState;
+    public static Vector3 playerPosition;
 
     float engineCurrentPower = 30f;
     float engineDefaultPower = 70f;
@@ -33,6 +33,7 @@ public class PlayerControl : MonoBehaviour
     Vector3 playerVelocity;
     Camera gameCamera;
 
+    List<MeshRenderer> playerMeshRenders = new List<MeshRenderer>();
     LaunchPadController launchPadControl;
 
     //Player states
@@ -50,16 +51,6 @@ public class PlayerControl : MonoBehaviour
 
     //Return the player state
     public PlayerState GetPlayerState { get { return playerState; } }
-    public static bool PlayerPosition(ref Vector3 playerCurrentPosition)
-    {
-        if (instance.playerState == PlayerState.PLAYING)
-        {
-            playerCurrentPosition = instance.transform.position;
-            return true;
-        }
-
-        return false;
-    }
 
     private void Awake()
     {
@@ -68,6 +59,9 @@ public class PlayerControl : MonoBehaviour
 
         instance = this;
         playerIsEnabled = false;
+
+        //Get all mesh renderers
+        GetComponentsInChildren<MeshRenderer>(true, playerMeshRenders);
     }
 
     // Start is called before the first frame update
@@ -91,6 +85,8 @@ public class PlayerControl : MonoBehaviour
                 //Set mode and enable the controlls
                 playerState = PlayerState.PLAYING;
                 playerIsEnabled = true;
+                foreach (MeshRenderer renderer in playerMeshRenders)
+                { renderer.enabled = playerIsEnabled; }
 
                 //Send message to GameController that the manager that the player has launched
                 JObject readyMessage = new()
@@ -108,9 +104,14 @@ public class PlayerControl : MonoBehaviour
         if (hull <= 0)
         {
             playerState = PlayerState.DESTROYING;
+            //Spawn explosion, next to player
+            GameObject playerExplosion;
+            ObjectPooler.ObjectPoolDictionary["Explosion_Player"].Get(out playerExplosion);
+            playerExplosion.transform.position = transform.position;
 
-            //Play the explosion animation, animation will automatically set to DESTROY state when completed
-            playerState = PlayerState.DESTROYED;
+            playerIsEnabled = false;
+            foreach (MeshRenderer renderer in playerMeshRenders)
+            { renderer.enabled = playerIsEnabled; }
         }
 
         if (playerState == PlayerState.PLAYING)
@@ -198,10 +199,9 @@ public class PlayerControl : MonoBehaviour
 
         if (playerState == PlayerState.DESTROYED)
         {
-            //Send message to GameController that the manager that the player has been destroyed along with the player position
-            JObject destroyMessage = new() { { "player-controller", "destroyed" } };
+            //Send message to GameController that the manager that the player has been destroyed
+            JObject destroyMessage = new() { { "player-controller", "destroying" } };
             ControllerMessages.OnControllerMessage(this, new ControllerMessages.ControllerMessage { JSONMessage = destroyMessage.ToString() });
-
         }
     }
 
@@ -231,6 +231,8 @@ public class PlayerControl : MonoBehaviour
 
         float localRollAngle = animationEaseCurve.Evaluate(playerRb.velocity.x / lateralPowerLimit.y) * percentTilt * lateralPowerLimit.y * -Mathf.Sign(playerVelocity.x);
         playerRb.transform.localRotation = Quaternion.Euler(0f, 0f, localRollAngle);
+
+        playerPosition = playerRb.transform.position;
     }
 
     public float GetPlayerThrottlePercent()
@@ -353,14 +355,16 @@ public class PlayerControl : MonoBehaviour
 
             if (propertyName == "enabled")
             {
-                bool playerEnabledStatus = playerConfig["enabled"].Value<bool>();
-                playerIsEnabled = playerEnabledStatus;
+                playerIsEnabled = (bool)propertyValue;
+                
+                foreach (MeshRenderer renderer in playerMeshRenders)
+                { renderer.enabled = playerIsEnabled; }
 
                 //If enabled get the camera reference
-                if (playerEnabledStatus)
+                if (playerIsEnabled)
                 {
                     gameCamera = CameraController.ChaseCamera;
-                    transform.position = new Vector3(0f, 0f, 0f);
+                    //transform.position = new Vector3(0f, 0f, 0f);
                 }
 
                 //Send message to GameController that the manager is ready
@@ -391,6 +395,14 @@ public class PlayerControl : MonoBehaviour
             //Set the player state
             if (propertyName == "state")
             {
+                //If player is being reset, reenable the mesh renderer
+                if ((propertyValue.ToString() == "PLAYING") && (playerState == PlayerState.DESTROYED))
+                {
+                    playerIsEnabled = true;
+                    foreach (MeshRenderer renderer in playerMeshRenders)
+                    { renderer.enabled = playerIsEnabled; }
+                }
+
                 Enum.TryParse<PlayerState>(propertyValue.ToString(), out playerState);
             }
         }

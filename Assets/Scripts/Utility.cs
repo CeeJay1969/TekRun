@@ -273,4 +273,40 @@ public static class Utility
 
         return newJSON;
     }
+
+    //Gather list of GameObjects attached to gameObjectWeaponCheck that match gameObjectNameStartsWith
+    public static List<GameObject> FindGameObjects(GameObject gameObjectSearchCheck, string gameObjectNameStartsWith)
+    {
+        List<GameObject> foundGameObject = null;
+
+        //Add the current gameoject if it matches the starts with criteria
+        if (gameObjectSearchCheck.name.StartsWith(gameObjectNameStartsWith))
+        {
+            if (foundGameObject == null)
+            {
+                foundGameObject = new List<GameObject>();
+            }
+
+            foundGameObject.Add(gameObjectSearchCheck);
+        }
+
+        //Check of children, make recursive call if they exist
+        if (gameObjectSearchCheck.transform.childCount != 0)
+        {
+            for (int objectChildCount = 0; objectChildCount < gameObjectSearchCheck.transform.childCount; objectChildCount++)
+            {
+                List<GameObject> childGameObjects = FindGameObjects(gameObjectSearchCheck.transform.GetChild(objectChildCount).gameObject, gameObjectNameStartsWith);
+                if (childGameObjects != null)
+                {
+                    if (foundGameObject == null)
+                    {
+                        foundGameObject = new List<GameObject>();
+                    }
+                    foundGameObject.AddRange(childGameObjects);
+                }
+            }
+        }
+
+        return foundGameObject;
+    }
 }

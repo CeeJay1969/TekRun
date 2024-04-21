@@ -11,10 +11,12 @@ public class TestScript : MonoBehaviour
         //Text data
         JObject textProperty = new();
         JObject textProperties = new();
+        JObject passThru = new();
+
         textProperty.Add("header", "MISSION - " + "Mission #1");
         textProperty.Add("footer", "Welcome to the CAKE WALK");
         textProperties.Add("text", textProperty);
-
+        passThru.Add("PASS-THRU", textProperties);
 
         ////Style data
         //JObject textStyle = new();
@@ -55,7 +57,7 @@ public class TestScript : MonoBehaviour
         //missionProperties.Add(fontSettings1);
         //missionProperties.Add(fontSettings2);
 
-        Debug.Log(textProperties);
+        Debug.Log(passThru);
     }
 
     // Update is called once per frame
