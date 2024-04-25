@@ -7,6 +7,7 @@ TagManager:
   - Fog
   - Controller
   - SkyDome
+  - OutOfBounds
   layers:
   - Default
   - TransparentFX
@@ -17,7 +18,7 @@ TagManager:
   - TrackRaycast
   - Obstacle
   - Player
-  - 
+  - OutOfBounds
   - 
   - 
   - 

@@ -6,7 +6,7 @@ using UnityEngine;
 public static class Utility
 {
     const float FIXED_UPDATE = 0.02f;
-
+    
     static public string PREFAB_BASEPATH = "c:" + "Assets\\Resources\\Prefabs";
 
     static public GameObject SkyDomeEffect

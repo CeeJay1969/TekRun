@@ -57,7 +57,7 @@ public class TestScript : MonoBehaviour
         //missionProperties.Add(fontSettings1);
         //missionProperties.Add(fontSettings2);
 
-        Debug.Log(passThru);
+        //Debug.Log(passThru);
     }
 
     // Update is called once per frame

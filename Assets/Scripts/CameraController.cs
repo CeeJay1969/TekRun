@@ -21,16 +21,25 @@ public class CameraController : MonoBehaviour
 
     float percentTilt = 0.45f;
     float velocityDeadZone = 15f;
+    float cameraMinHeight = 5f;
 
     bool cameraIsEnabled;
 
     [SerializeField] AnimationCurve _cameraCurveMovement;
     [SerializeField] float _skyDomeHeight = 75f;
-    
+    float _outOfBoundsDepth = -50f;
+
     static private GameObject _skyDomeReference;
+    static private GameObject _outOfBoundsReference;
+
     static public GameObject SkyDomeReference
     {
         get { return _skyDomeReference; }
+    }
+
+    static public GameObject OutOfBoundsReference
+    {
+        get { return _outOfBoundsReference; }
     }
 
     [SerializeField] float _cameraLerpSpeed;
@@ -42,6 +51,7 @@ public class CameraController : MonoBehaviour
         //Disable the camera controller by default
         cameraIsEnabled = false;
         _skyDomeReference = GameObject.FindGameObjectWithTag("SkyDome");
+        _outOfBoundsReference = GameObject.FindGameObjectWithTag("OutOfBounds");
 
         //Subscribe to GameController events
         GameController.instance.OnGameControllerMessage += OnCameraConfigChange;
@@ -67,33 +77,50 @@ public class CameraController : MonoBehaviour
         if (cameraIsEnabled == false) return;
 
         //Follow player if it's active
-        if (_playerControl.GetPlayerState == PlayerControl.PlayerState.PLAYING || _playerControl.GetPlayerState == PlayerControl.PlayerState.LAUNCH)
+        if (_playerControl.GetPlayerState == PlayerControl.PlayerState.PLAYING)
         {
-            //Simple lerp movement
-            Vector3 desiredPosition = Vector3.Lerp(_playerReference.transform.position + _cameraOffset, gameObject.transform.position, _cameraLerpSpeed);
-
-            Vector3 cameraPosition = gameObject.transform.position;
-            gameObject.transform.position = desiredPosition;
-
-            //Roll camera with player ship
-            //gameObject.transform.rotation = Quaternion.Euler(0f, 0f, (1 + Mathf.Sin((_playerRb.velocity.x + 270f) * Mathf.Deg2Rad)) * percentTilt);
-            float playerMaxLatitude = Mathf.Abs(_playerControl.GetPlayerMaxLateralVelocity());
-            float cameraRollAngle = transform.rotation.eulerAngles.z;
-
-            float playerVelocity = _playerRb.velocity.x;
-            if (Mathf.Abs(playerVelocity) < Mathf.Abs(velocityDeadZone))
+            //Clip camera a certain height. when player is playing, if player falls below track
+            if ((_playerReference.transform.position.y < cameraMinHeight) && (transform.position.y < cameraMinHeight))
             {
-                playerVelocity = 0f;
+                //Simple lerp movement
+                Vector3 desiredPosition = Vector3.Lerp(_playerReference.transform.position + _cameraOffset, gameObject.transform.position, 0.998f);
+                transform.position = desiredPosition;
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(_playerReference.transform.position - transform.position), 0.25f);
             }
-            else playerVelocity = playerVelocity + -Mathf.Sign(playerVelocity) * velocityDeadZone;
+            else
+            {
+                //Simple lerp movement
+                Vector3 desiredPosition = Vector3.Lerp(_playerReference.transform.position + _cameraOffset, gameObject.transform.position, _cameraLerpSpeed);
+                transform.position = desiredPosition;
 
-            float cameraZRoll = _cameraCurveMovement.Evaluate(playerVelocity / playerMaxLatitude) * percentTilt * playerMaxLatitude * Mathf.Sign(playerVelocity);
-            cameraZRoll = Mathf.LerpAngle(cameraRollAngle, cameraZRoll, 0.05f);
+                //Roll camera with player ship
+                //gameObject.transform.rotation = Quaternion.Euler(0f, 0f, (1 + Mathf.Sin((_playerRb.velocity.x + 270f) * Mathf.Deg2Rad)) * percentTilt);
+                float playerMaxLatitude = Mathf.Abs(_playerControl.GetPlayerMaxLateralVelocity());
+                float cameraRollAngle = transform.rotation.eulerAngles.z;
 
-            transform.rotation = Quaternion.Euler(0f, 0f, cameraZRoll);
+                float playerVelocity = _playerRb.velocity.x;
+                if (Mathf.Abs(playerVelocity) < Mathf.Abs(velocityDeadZone))
+                {
+                    playerVelocity = 0f;
+                }
+                else playerVelocity = playerVelocity + -Mathf.Sign(playerVelocity) * velocityDeadZone;
 
-            _skyDomeReference.transform.position = new Vector3(0f, _skyDomeHeight, gameObject.transform.position.z);
+                float cameraZRoll = _cameraCurveMovement.Evaluate(playerVelocity / playerMaxLatitude) * percentTilt * playerMaxLatitude * Mathf.Sign(playerVelocity);
+                cameraZRoll = Mathf.LerpAngle(cameraRollAngle, cameraZRoll, 0.05f);
+
+                transform.rotation = Quaternion.Euler(0f, 0f, cameraZRoll);
+            }
         }
+
+        //Camera behavior while at launch
+        if (_playerControl.GetPlayerState == PlayerControl.PlayerState.LAUNCH)
+        {
+            transform.position = new Vector3(_playerReference.transform.position.x, _playerReference.transform.position.y + 10f, _playerReference.transform.position.z - 7.5f);
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(_playerReference.transform.position - transform.position), 0.25f);
+        }
+
+        _skyDomeReference.transform.position = new Vector3(0f, _skyDomeHeight, gameObject.transform.position.z);
+        _outOfBoundsReference.transform.position = new Vector3(0f, _outOfBoundsDepth, gameObject.transform.position.z);
     }
 
     void UpdateCameraConfig(JToken cameraConfig)

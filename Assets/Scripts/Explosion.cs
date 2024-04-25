@@ -34,7 +34,6 @@ public class Explosion : MonoBehaviour
             ControllerMessages.OnControllerMessage(this, new ControllerMessages.ControllerMessage { JSONMessage = playerResetMessage.ToString() });
 
             //Send it back to the object pool
-            explosionParticle.Stop();
             string poolName = gameObject.name.Replace("(Clone)", "");
             ObjectPooler.ObjectPoolDictionary[poolName].Release(gameObject);
         }

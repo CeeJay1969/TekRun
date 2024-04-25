@@ -18,7 +18,6 @@ public class PlayerControl : MonoBehaviour
     float playerInvulnerableCount = 2.5f;
     float playerInvulnerableCounter = 0;
     List<MeshRenderer> playerMeshRenders = new List<MeshRenderer>();
-    List<BoxCollider> playerBoxColliders = new List<BoxCollider>();
 
     float engineCurrentPower = 30f;
     float engineDefaultPower = 70f;
@@ -41,6 +40,8 @@ public class PlayerControl : MonoBehaviour
     Camera gameCamera;
 
     LaunchPadController launchPadControl;
+
+    const int trackLayer = 1 << 6;
 
     //Player states
     public enum PlayerState
@@ -110,10 +111,12 @@ public class PlayerControl : MonoBehaviour
         if (hull <= 0)
         {
             playerState = PlayerState.DESTROYING;
+            
             //Spawn explosion, next to player
             GameObject playerExplosion;
             ObjectPooler.ObjectPoolDictionary["Explosion_Player"].Get(out playerExplosion);
             playerExplosion.transform.position = transform.position;
+            playerRb.velocity = Vector3.zero;
 
             playerIsEnabled = false;
             ShowMesh(playerIsEnabled);
@@ -207,6 +210,7 @@ public class PlayerControl : MonoBehaviour
             //Send message to GameController that the manager that the player has been destroyed
             JObject destroyMessage = new() { { "player-controller", "destroying" } };
             ControllerMessages.OnControllerMessage(this, new ControllerMessages.ControllerMessage { JSONMessage = destroyMessage.ToString() });
+            engineCurrentPower = 0f;
         }
     }
 
@@ -214,11 +218,11 @@ public class PlayerControl : MonoBehaviour
     {
         //Do nothing if disabled
         if (playerIsEnabled == false) return;
+        if (playerState != PlayerState.PLAYING) return;
 
         float levitatorLength = 5.5f;
         float levitatorTargetHeight = 5f;
         int groundRayCastLayer = 1 << 6;
-        //int obstacleLayerBit = gameObject.layer;
 
         Vector3 levitatorOrigin = playerRb.transform.position;
 
@@ -330,6 +334,11 @@ public class PlayerControl : MonoBehaviour
 
         if (playerState == PlayerState.PLAYING)
         {
+            //Player colides with track layer but takes no damage from track collisions
+            int playerLayer = 1 << gameObject.layer;
+            int collidedLayer = 1 << collision.gameObject.layer;
+            if (((playerLayer + collidedLayer) & trackLayer) != 0) return;
+
             //Destroy player
             hull = 0;
         }
@@ -404,7 +413,8 @@ public class PlayerControl : MonoBehaviour
                 {
                     playerIsEnabled = true;
                     playerInvulnerable = true;
-
+                    lateralCurrentPower = 0;
+                    
                     //Start invulnerability flash
                     StartCoroutine(InvulnerabilityFlash());
                 }
@@ -443,6 +453,5 @@ public class PlayerControl : MonoBehaviour
 
         //Re-enable collision between player and obstacle layers
         Physics.IgnoreLayerCollision(7, 8, false);
-
     }
 }
