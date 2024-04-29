@@ -84,6 +84,7 @@ public class PlayerControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         //Waiting for launch pad to complete
         if (playerState == PlayerState.LAUNCH)
         {
@@ -280,54 +281,39 @@ public class PlayerControl : MonoBehaviour
             string currentLevelMessage = currentGameLevel.ToString();
             currentLevelMessage = new String('0', 3 - currentLevelMessage.Length) + currentLevelMessage;
 
-            //Text data
-            JObject textProperty = new();
-            JObject textProperties = new();
-            textProperty.Add("header", "MISSION - " + currentLevelMessage);
-            textProperty.Add("footer", initMessage);
-            textProperties.Add("text", textProperty);
+            JObject headerFadeData = new()
+            {
+                {"initial-delay", 1},
+                {"sustain-time", 4}
+            };
+            JObject footerFadeData = new()
+            {   {"initial-delay", 2},
+                {"sustain-time", 2}
+            };
 
-            /*
-            //Style data
-            JObject textStyle = new();
-            JObject textStyles = new();
-            textStyle.Add("header", "bold");
-            textStyle.Add("footer", "italic");
-            textStyles.Add("style", textStyle);
+            JObject headerData = new() {
+                {"text","MISSION : " + currentLevelMessage},
+                {"bold", true},
+                {"auto-size", true},
+                {"font-size", 30},
+                {"color", "#80808000"},
+                {"fade",  headerFadeData}
+            };
+            JObject footerData = new() {
+                {"text", initMessage},
+                {"italic", true},
+                {"color", "#F0F00000"},
+                {"fade", footerFadeData}
+            };
+            JObject missionProperties = new() {
+                {"header", headerData},
+                {"footer", footerData}
+            };
 
-            //Color and size for header and footer
-            JObject fontSetting1 = new();
-            JObject fontSettings1 = new();
-            fontSetting1.Add("font-size", 30);
-            fontSetting1.Add("color", "#F0F00000");
-            fontSettings1.Add("footer", fontSetting1);
-            JObject fontSetting2 = new();
-            JObject fontSettings2 = new();
-            fontSetting1.Add("auto-size", true);
-            fontSetting1.Add("color", "#80808000");
-            fontSettings1.Add("header", fontSetting2);
-
-            //Fade timing for header and footer
-            JObject headerFadeProperty = new();
-            JObject headerFadeProperties = new();
-            headerFadeProperty.Add("initial-delay", 1);
-            headerFadeProperty.Add("sustain-time", 4);
-            headerFadeProperty.Add("header", headerFadeProperty);
-            headerFadeProperties.Add("fade", headerFadeProperty);
-            JObject footerFadeProperty = new();
-            JObject footerFadeProperties = new();
-            footerFadeProperty.Add("initial-delay", 2);
-            footerFadeProperty.Add("sustain-time", 2);
-            footerFadeProperty.Add("header", footerFadeProperty);
-            footerFadeProperty.Add("fade", footerFadeProperty);
-            */
-
-            JObject missionProperties = new();
-            missionProperties.Add("ui-controller", textProperties);
-            //missionProperties.Add(fontSettings1);
-            //missionProperties.Add(fontSettings2);
-
-            ControllerMessages.OnUIControllerMessage(this, new ControllerMessages.UIControllerMessage { JSONMessage = missionProperties.ToString() });
+            JObject UIMIssionMessage = new() {
+                {"ui-update-field", missionProperties}
+            };
+            ControllerMessages.OnUIControllerMessage(this, new ControllerMessages.UIControllerMessage { JSONMessage = UIMIssionMessage.ToString() });
 
             playerState = PlayerState.LAUNCH;
         }

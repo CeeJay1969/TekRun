@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public class UIController : MonoBehaviour
 {
@@ -53,7 +54,7 @@ public class UIController : MonoBehaviour
         if (UIConfig["enabled"] != null)
         {
             UIControllerEnabled = bool.Parse(UIConfig["enabled"].Value<string>());
-
+            
             //Enable/disable all fields
             for (int textFieldIndex = 0; textFieldIndex < UITextFields.Count(); textFieldIndex++)
             {
@@ -62,92 +63,52 @@ public class UIController : MonoBehaviour
         }
     }
 
-    void UpdateUIField(JToken UIPropertyChanges)
+    void UpdateUIFields(JToken UIPropertyChanges)
     {
-        //Check for each property
-        if (UIPropertyChanges["text"] != null)
+        //Iterate through each property, if a matching field is found change the properties
+        foreach (JProperty uiPropertyChange in UIPropertyChanges)
         {
-            //Step through each field:
-            foreach (JProperty UITextProperty in UIPropertyChanges["text"])
-                UITextFields[UITextProperty.Name].text = UITextProperty.Value.ToString();
-        }
-
-        //Update the style
-        if (UIPropertyChanges["style"] != null)
-        {
-            foreach (JProperty UITextStyle in UIPropertyChanges["style"])
+            //Check for match between the property and fields in the UI
+            if (UITextFields.ContainsKey(uiPropertyChange.Name))
             {
-                if (UITextStyle.Value.ToString() == "bold")
-                {
-                    UITextFields[UITextStyle.Name].fontStyle = FontStyles.Bold;
-                }
-                if (UITextStyle.Value.ToString() == "italic")
-                {
-                    UITextFields[UITextStyle.Name].fontStyle = FontStyles.Italic;
-                }
-                if (UITextStyle.Value.ToString() == "small-caps")
-                    UITextFields[UITextStyle.Name].fontStyle = FontStyles.SmallCaps;
-            }
-        }
+                //Get the properties
+                JToken uiProperties = uiPropertyChange.Value;
+                //Modify text if properties are present
+                if (uiProperties["text"] != null)
+                    UITextFields[uiPropertyChange.Name].text = uiProperties["text"].ToString();
 
-        //Basic text settings
-        if (UIPropertyChanges["setting"] != null)
-        {
-            foreach (JProperty UISettings in UIPropertyChanges["setting"])
-            {
-                //Apply each setting
-                foreach (JProperty UISetting in UISettings.Value)
+                //Get the current font styles
+                //TMPro.FontStyles fontStyle = UITextFields[uiPropertyChange.Name].fontStyle;
+
+                //Change the font color
+                if (uiProperties["color"] != null)
                 {
-                    if (UISetting.Name == "size")
-                    {
-                        //Turn off autosizing, if it's on
-                        if (UITextFields[UISettings.Name].enableAutoSizing == true)
-                            UITextFields[UISettings.Name].enableAutoSizing = false;
-
-                        UITextFields[UISettings.Name].fontSize = (float)UISetting.Value;
-                    }
-                    if (UISetting.Name == "color")
-                    {
-                        //Try to convert the string to color
-                        ColorUtility.TryParseHtmlString(UISetting.Value.ToString(), out Color newFontColor);
-                        UITextFields[UISettings.Name].color = newFontColor;
-                    }
-                    if (UISetting.Name == "auto-size")
-                        UITextFields[UISettings.Name].enableAutoSizing = bool.Parse(UISetting.Value.ToString());
-                }
-            }
-        }
-
-        //Fade effects
-        if (UIPropertyChanges["fade"] != null)
-        {
-            //Configure the fade effects
-            foreach (JProperty UITextFades in UIPropertyChanges["fade"])
-            {
-                //Set the default values
-                float initialDelaySeconds = 0f;
-                int alphaRampUpSpeed = 10;
-                float sustainSeconds = 2;
-                int alphaRampDownSpeed = 10;
-                float animationWaitTime = 0.01f;
-
-                foreach (JProperty UITextFade in UITextFades.Value)
-                {
-                    //Tweak settings as needed
-                    if (UITextFade.Name == "initial-delay")
-                        initialDelaySeconds = (float)UITextFade.Value;
-                    if (UITextFade.Name == "ramp-up-speed")
-                        alphaRampUpSpeed = (int)UITextFade.Value;
-                    if (UITextFade.Name == "ramp-down-speed")
-                        alphaRampDownSpeed = (int)UITextFade.Value;
-                    if (UITextFade.Name == "sustain-time")
-                        sustainSeconds = (float)UITextFade.Value;
-                    if (UITextFade.Name == "animation-speed")
-                        animationWaitTime = (float)UITextFade.Value;
+                    ColorUtility.TryParseHtmlString(uiProperties["color"].ToString(), out Color newFontColor);
+                    UITextFields[uiPropertyChange.Name].color = newFontColor;
                 }
 
-                //Initiate the fade animation
-                textAlphaFader.FadeAlpha(initialDelaySeconds, alphaRampUpSpeed, sustainSeconds, alphaRampDownSpeed, animationWaitTime, UITextFields[UITextFades.Name]);
+                //Enable disable auto sizing
+                if (uiProperties["auto-size"] != null)
+                    UITextFields[uiPropertyChange.Name].enableAutoSizing = (bool)uiProperties["auto-size"];
+                
+                //Configure fade in effects
+                if (uiProperties["fade"] != null)
+                {
+                    //Set the default values
+                    int alphaRampUpSpeed = 10;
+                    int alphaRampDownSpeed = 10;
+                    float initialDelay = 2f;
+                    float sustainTime = 0f;
+                    float animationWaitTime = 0.01f;
+
+                    if (uiProperties["fade"].Value<JToken>("initial-delay") != null)
+                        initialDelay = (float)uiProperties["fade"].Value<JToken>("initial-delay");
+                    if (uiProperties["fade"].Value<JToken>("sustain-time") != null)
+                        sustainTime = (float)uiProperties["fade"].Value<JToken>("sustain-time");
+
+                    //Initiate the fade animation
+                    textAlphaFader.FadeAlpha(initialDelay, alphaRampUpSpeed, sustainTime, alphaRampDownSpeed, animationWaitTime, UITextFields[uiPropertyChange.Name]);
+                }
             }
         }
     }
@@ -167,7 +128,7 @@ public class UIController : MonoBehaviour
         foreach (var JSONObject in JSONObjects)
         {
             //Update camera controller 
-            if (JSONObject.Key == "ui-update-field") UpdateUIField(JSONObject.Value);
+            if (JSONObject.Key == "ui-update-field") UpdateUIFields(JSONObject.Value);
         }
     }
 }

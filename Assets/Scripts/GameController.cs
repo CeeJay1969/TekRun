@@ -293,6 +293,9 @@ public class GameController : MonoBehaviour
                 //Message to enable the camera controller
                 controllerMessage.Add("camera-controller", controllerEnableMessage);
 
+                controllerEnableMessage = new()
+                { {"enabled", "true"} };
+
                 //Message to enable te spawn controller and place it at the origin and set the build range
                 controllerMessage.Add("spawn-config", controllerEnableMessage);
                 SpawnController.instance.transform.position = Vector3.zero;
@@ -370,7 +373,7 @@ public class GameController : MonoBehaviour
                     };
 
                     JObject playerControllerMessage = new()
-                    { 
+                    {
                         {"player-controller", playerControllerMessages}
                     };
                     OnGameControllerMessage(this, new GameControllerMessage { JSONMessage = playerControllerMessage.ToString() });
