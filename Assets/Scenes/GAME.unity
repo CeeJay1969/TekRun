@@ -454,7 +454,7 @@ MonoBehaviour:
     m_PostInfinity: 0
     m_RotationOrder: 4
   _skyDomeHeight: 150
-  _cameraLerpSpeed: 0.89
+  _cameraLerpSpeed: 0.95
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -572,7 +572,7 @@ MonoBehaviour:
   m_ShadowRenderingLayers: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
-  m_SoftShadowQuality: 1
+  m_SoftShadowQuality: 0
 --- !u!1 &436009044
 GameObject:
   m_ObjectHideFlags: 0

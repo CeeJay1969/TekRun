@@ -229,11 +229,24 @@ public class SpawnController : MonoBehaviour
         //Iteratively draw the tracks out in front of the player
         while (_buildPoint.z < (_playerReference.transform.position.z + _buildDistance.z))
         {
-            DrawTracks();
-            DrawBridgeSupports();
-            DrawTrackRails();
-            DrawTrackLight();
-            DrawFogLayer();
+            if (trackBuildMode != Enums.TrackBuildMode.END_MISSION)
+            {
+                DrawTracks();
+                DrawBridgeSupports();
+                DrawTrackRails();
+                DrawTrackLight();
+                DrawFogLayer();
+            }
+
+            if (trackBuildMode == Enums.TrackBuildMode.END_MISSION)
+            {
+                GameObject endMission;
+                ObjectPooler.ObjectPoolDictionary["Exit"].Get(out endMission);
+                endMission.transform.position = new Vector3(0f, 0f, _buildPoint.z);
+
+                //Turn off the track building
+                trackBuildMode = Enums.TrackBuildMode.NULL;
+            }
 
             //Move the track build point
             _buildPoint = new Vector3(0f, 0f, _buildPoint.z + _buildPointIncrement);

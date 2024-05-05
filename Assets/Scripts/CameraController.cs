@@ -21,7 +21,7 @@ public class CameraController : MonoBehaviour
 
     float percentTilt = 0.45f;
     float velocityDeadZone = 15f;
-    float cameraMinHeight = 5f;
+    float cameraMinHeight = -5f;
 
     bool cameraIsEnabled;
 
@@ -113,12 +113,19 @@ public class CameraController : MonoBehaviour
         }
 
         //Camera behavior while at launch
-        if (_playerControl.GetPlayerState == PlayerControl.PlayerState.LAUNCH)
+        if ((_playerControl.GetPlayerState == PlayerControl.PlayerState.LAUNCH) || (_playerControl.GetPlayerState == PlayerControl.PlayerState.LIFTOFF))
         {
-            transform.position = new Vector3(_playerReference.transform.position.x, _playerReference.transform.position.y + 10f, _playerReference.transform.position.z - 7.5f);
+            float cameraHeight = 7f - System.MathF.Abs(_playerControl.transform.position.y) * 0.11667f;
+
+            Vector2 cameraPosition;
+            cameraPosition.x = 10f * Mathf.Sin(Mathf.Deg2Rad * ((_playerReference.transform.position.y + 60f) * 2.8f));
+            cameraPosition.y = 10f * Mathf.Cos(Mathf.Deg2Rad * ((_playerReference.transform.position.y + 60f) * 2.8f));
+            
+            transform.position = new Vector3(_playerReference.transform.position.x + cameraPosition.x, _playerReference.transform.position.y + cameraHeight, _playerReference.transform.position.z + cameraPosition.y);
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(_playerReference.transform.position - transform.position), 0.25f);
         }
 
+        //Update sky and out of bounds
         _skyDomeReference.transform.position = new Vector3(0f, _skyDomeHeight, gameObject.transform.position.z);
         _outOfBoundsReference.transform.position = new Vector3(0f, _outOfBoundsDepth, gameObject.transform.position.z);
     }

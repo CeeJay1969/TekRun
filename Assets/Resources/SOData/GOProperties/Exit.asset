@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Exit
   m_EditorClassIdentifier: 
   FieldData: "{\r\n   \"alias\":[\r\n      {\"value\":\"exit\"}\r\n   ],\r\n   \"health\":[\r\n     
-    {\"value\":\"-1\"}\r\n   ],\r\n   \"dimensions\":[\r\n      {\"X\":\"10\"},\r\n     
-    {\"Y\":\"10\"},\r\n      {\"Z\":\"10\"}\r\n   ]\r,\n   \"pool-attributes\":[\n     
+    {\"value\":\"-1\"}\r\n   ],\r\n   \"dimensions\":[\r\n      {\"X\":\"50\"},\r\n     
+    {\"Y\":\"10\"},\r\n      {\"Z\":\"100\"}\r\n   ]\r,\n   \"pool-attributes\":[\n     
     {\"default\":\"1\"},\n      {\"maximum\":\"10\"}\n   ]\n}"

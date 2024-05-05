@@ -50,6 +50,7 @@ public class PlayerControl : MonoBehaviour
         PAUSE,
         INITIALIZE,
         LAUNCH,
+        LIFTOFF,
         PLAYING,
         DESTROYING,
         DESTROYED,
@@ -92,16 +93,9 @@ public class PlayerControl : MonoBehaviour
             if (launchPadControl.LaunchPadStatusValue == LaunchPadController.LaunchPadStatus.IDLE)
             {
                 //Set mode and enable the controlls
-                playerState = PlayerState.PLAYING;
+                playerState = PlayerState.LIFTOFF;
                 playerIsEnabled = true;
                 ShowMesh(playerIsEnabled);
-
-                //Send message to GameController that the manager that the player has launched
-                JObject readyMessage = new()
-                {
-                    { "player-controller", "launched" }
-                };
-                ControllerMessages.OnControllerMessage(this, new ControllerMessages.ControllerMessage { JSONMessage = readyMessage.ToString() });
             }
         }
 
@@ -219,7 +213,8 @@ public class PlayerControl : MonoBehaviour
     {
         //Do nothing if disabled
         if (playerIsEnabled == false) return;
-        if (playerState != PlayerState.PLAYING) return;
+        
+        //if (playerState != PlayerState.PLAYING) return;
 
         float levitatorLength = 5.5f;
         float levitatorTargetHeight = 5f;
@@ -228,6 +223,7 @@ public class PlayerControl : MonoBehaviour
         Vector3 levitatorOrigin = playerRb.transform.position;
 
         RaycastHit rayCastInfo;
+        playerVelocity.y = Physics.gravity.y;
 
         if (Physics.Raycast(levitatorOrigin, Vector3.down, out rayCastInfo, levitatorLength, groundRayCastLayer))
         {
@@ -240,8 +236,24 @@ public class PlayerControl : MonoBehaviour
 
         Utility.SetVelocityWithForce(playerRb, playerVelocity, true, new Vector3(0f, 0f, 0f));
 
-        float localRollAngle = animationEaseCurve.Evaluate(playerRb.velocity.x / lateralPowerLimit.y) * percentTilt * lateralPowerLimit.y * -Mathf.Sign(playerVelocity.x);
-        playerRb.transform.localRotation = Quaternion.Euler(0f, 0f, localRollAngle);
+        //Once ship is cleared launch pad, start forward movement
+        if (playerState == PlayerState.LIFTOFF && transform.position.y > levitatorLength)
+        {
+            playerState = PlayerState.PLAYING;
+
+            //Send message to GameController that the manager that the player has launched
+            JObject readyMessage = new()
+                {
+                    { "player-controller", "launched" }
+                };
+            ControllerMessages.OnControllerMessage(this, new ControllerMessages.ControllerMessage { JSONMessage = readyMessage.ToString() });
+        }
+
+        if (playerState == PlayerState.PLAYING)
+        {
+            float localRollAngle = animationEaseCurve.Evaluate(playerRb.velocity.x / lateralPowerLimit.y) * percentTilt * lateralPowerLimit.y * -Mathf.Sign(playerVelocity.x);
+            playerRb.transform.localRotation = Quaternion.Euler(0f, 0f, localRollAngle);
+        }
 
         playerPosition = playerRb.transform.position;
     }

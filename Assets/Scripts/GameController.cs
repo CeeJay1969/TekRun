@@ -282,7 +282,7 @@ public class GameController : MonoBehaviour
                 newPlayer.transform.position = Vector3.zero;
 
                 //Put camera a little closer to player
-                JObject cameraOffset = Utility.Vector3toJSON(new Vector3(0f, 4f, -6f));
+                JObject cameraOffset = Utility.Vector3toJSON(new Vector3(0f, 0f, -10f));
                 controllerMessage = new();
                 JObject controllerEnableMessage = new()
                 {
@@ -343,12 +343,13 @@ public class GameController : MonoBehaviour
                 gamePhase = GamePhase.GAME_LOOP;
 
                 //Put camera back a bit
-                JObject cameraOffset = Utility.Vector3toJSON(new Vector3(0f, 10f, -15f));
+                JObject cameraOffset = Utility.Vector3toJSON(new Vector3(0f, 7.5f, -10f));
                 controllerMessage = new();
                 JObject controllerEnableMessage = new()
                 {
                     {"camera-offset", cameraOffset }
                 };
+                controllerMessage.Add("camera-controller", controllerEnableMessage);
                 OnGameControllerMessage(this, new GameControllerMessage { JSONMessage = controllerMessage.ToString() });
             }
 
@@ -378,6 +379,13 @@ public class GameController : MonoBehaviour
                     };
                     OnGameControllerMessage(this, new GameControllerMessage { JSONMessage = playerControllerMessage.ToString() });
                 }
+
+                //Player has completed the level
+                if (JSONObject.Key == "level-completed")
+                {
+                    Debug.Log("Detected: level is completed");
+                }
+
             }
         }
     }
