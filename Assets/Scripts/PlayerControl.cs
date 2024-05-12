@@ -54,6 +54,7 @@ public class PlayerControl : MonoBehaviour
         PLAYING,
         DESTROYING,
         DESTROYED,
+        END_LEVEL,
         RESET
     }
 
@@ -253,6 +254,13 @@ public class PlayerControl : MonoBehaviour
         {
             float localRollAngle = animationEaseCurve.Evaluate(playerRb.velocity.x / lateralPowerLimit.y) * percentTilt * lateralPowerLimit.y * -Mathf.Sign(playerVelocity.x);
             playerRb.transform.localRotation = Quaternion.Euler(0f, 0f, localRollAngle);
+        }
+
+        //Animation for player ending the level
+        if (playerState == PlayerState.END_LEVEL)
+        {
+            //Stop the player ship
+            
         }
 
         playerPosition = playerRb.transform.position;
